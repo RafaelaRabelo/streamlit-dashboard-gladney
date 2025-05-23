@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8501
 
 # Rodar o Streamlit
-CMD ["streamlit", "run", "test_looker.py", "--server.port=8501", "--server.enableCORS=false"]
+CMD ["streamlit", "run", "test_looker.py", "--server.port=8080", "--server.enableCORS=false", "--server.address=0.0.0.0"]

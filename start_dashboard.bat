@@ -11,6 +11,6 @@ start "" streamlit run test_looker.py --server.headless true
 timeout /t 5 > nul
 
 :: Abre manualmente no Chrome
-start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" http://localhost:8501
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" http://localhost:8080
 
 pause

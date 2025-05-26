@@ -5,25 +5,23 @@ import requests
 import os
 import base64
 
-# 🔐 Carregar variáveis de ambiente local (se existir .env)
+# Carregar variáveis do .env local (opcional)
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except:
     pass
 
-# 🔗 Variáveis de ambiente
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 REDIRECT_URI = os.getenv('REDIRECT_URI')
-ALLOWED_DOMAIN = os.getenv('ALLOWED_DOMAIN')
+ALLOWED_EMAILS_RAW = os.getenv('ALLOWED_EMAILS', '')
+ALLOWED_EMAILS = [email.strip() for email in ALLOWED_EMAILS_RAW.split(',') if email.strip()]
 
-# 🔗 URLs do OAuth Google
 AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 TOKEN_URL = 'https://oauth2.googleapis.com/token'
 USER_INFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
-# 🔗 Construir URL de login
 params = {
     'client_id': CLIENT_ID,
     'response_type': 'code',
@@ -34,14 +32,12 @@ params = {
 }
 auth_request_url = f'{AUTH_URL}?{urlencode(params)}'
 
-# 🔐 Controle de autenticação
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
 if not st.session_state['authenticated']:
     st.markdown(f'### 🔐 [Login with Google]({auth_request_url})')
 
-    # Linha atualizada para evitar aviso de depreciação:
     query_params = st.query_params
 
     if 'code' in query_params:
@@ -70,11 +66,10 @@ if not st.session_state['authenticated']:
             user_email = user_info.get('email', '')
             user_name = user_info.get('name', '')
 
-            # 🔒 Validação de domínio (opcional)
-            if ALLOWED_DOMAIN:
-                permitir_acesso = user_email.endswith(f'@{ALLOWED_DOMAIN}')
+            if ALLOWED_EMAILS:
+                permitir_acesso = user_email in ALLOWED_EMAILS
             else:
-                permitir_acesso = True  # Aceita qualquer email no modo teste
+                permitir_acesso = True  # libera acesso se lista vazia
 
             if permitir_acesso:
                 st.session_state['authenticated'] = True
@@ -89,9 +84,8 @@ if not st.session_state['authenticated']:
 
     st.stop()
 
-# 🔓 App após autenticação
 st.sidebar.success(f"✅ Logged in as {st.session_state['user']['email']}")
 st.title('🚀 Dashboard Gladney')
 st.write('🔐 Conteúdo protegido liberado!')
 
-# ➕ Aqui adiciona seu dashboard, gráficos, iframes, etc.
+# Aqui seu dashboard e conteúdo

@@ -41,7 +41,8 @@ if 'authenticated' not in st.session_state:
 if not st.session_state['authenticated']:
     st.markdown(f'### 🔐 [Login with Google]({auth_request_url})')
 
-    query_params = st.experimental_get_query_params()
+    # Linha atualizada para evitar aviso de depreciação:
+    query_params = st.query_params
 
     if 'code' in query_params:
         code = query_params['code'][0]
@@ -94,4 +95,3 @@ st.title('🚀 Dashboard Gladney')
 st.write('🔐 Conteúdo protegido liberado!')
 
 # ➕ Aqui adiciona seu dashboard, gráficos, iframes, etc.
-

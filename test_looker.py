@@ -2,19 +2,23 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 from urllib.parse import urlencode
 import requests
-from dotenv import load_dotenv
 import os
 import base64
 
-# 🔐 Carregar variáveis de ambiente
-load_dotenv()
+# 🔐 Carregar variáveis de ambiente local (se existir .env)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
 
+# 🔗 Variáveis de ambiente
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 REDIRECT_URI = os.getenv('REDIRECT_URI')
 ALLOWED_DOMAIN = os.getenv('ALLOWED_DOMAIN')
 
-# 🔗 OAuth URLs
+# 🔗 URLs do OAuth Google
 AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 TOKEN_URL = 'https://oauth2.googleapis.com/token'
 USER_INFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo'
@@ -30,7 +34,7 @@ params = {
 }
 auth_request_url = f'{AUTH_URL}?{urlencode(params)}'
 
-# 🔐 Controle de login
+# 🔐 Controle de autenticação
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
@@ -65,11 +69,11 @@ if not st.session_state['authenticated']:
             user_email = user_info.get('email', '')
             user_name = user_info.get('name', '')
 
-            # 🔒 Verificar domínio
+            # 🔒 Validação de domínio (opcional)
             if ALLOWED_DOMAIN:
                 permitir_acesso = user_email.endswith(f'@{ALLOWED_DOMAIN}')
             else:
-                permitir_acesso = True  # qualquer email no modo teste
+                permitir_acesso = True  # Aceita qualquer email no modo teste
 
             if permitir_acesso:
                 st.session_state['authenticated'] = True
@@ -84,9 +88,10 @@ if not st.session_state['authenticated']:
 
     st.stop()
 
-# 🔓 App depois do login
+# 🔓 App após autenticação
 st.sidebar.success(f"✅ Logged in as {st.session_state['user']['email']}")
 st.title('🚀 Dashboard Gladney')
-st.write('Conteúdo protegido liberado!')
+st.write('🔐 Conteúdo protegido liberado!')
 
-# ➕ Adiciona seu dashboard, iframe ou dados aqui
+# ➕ Aqui adiciona seu dashboard, gráficos, iframes, etc.
+

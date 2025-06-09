@@ -3,7 +3,7 @@ from streamlit_option_menu import option_menu
 from urllib.parse import urlencode
 import requests
 import os
-import base64
+from datetime import datetime
 
 # Carregar variáveis do .env local (opcional)
 try:
@@ -16,6 +16,7 @@ CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 REDIRECT_URI = os.getenv('REDIRECT_URI')
 ALLOWED_EMAILS_RAW = os.getenv('ALLOWED_EMAILS', '')
+ALLOWED_DOMAIN = os.getenv('ALLOWED_DOMAIN', '')
 ALLOWED_EMAILS = [email.strip() for email in ALLOWED_EMAILS_RAW.split(',') if email.strip()]
 
 AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -55,12 +56,11 @@ if not st.session_state['authenticated']:
         token_json = token_response.json()
 
         if 'error' in token_json:
-            st.error(f"Erro ao obter token: {token_json}")
+            st.error(f"❌ Erro ao obter token: {token_json}")
             st.stop()
 
-        if 'access_token' in token_json:
-            access_token = token_json['access_token']
-
+        access_token = token_json.get('access_token')
+        if access_token:
             user_info_response = requests.get(
                 USER_INFO_URL,
                 headers={'Authorization': f'Bearer {access_token}'}
@@ -70,26 +70,33 @@ if not st.session_state['authenticated']:
             user_email = user_info.get('email', '')
             user_name = user_info.get('name', '')
 
+            # Autorização condicional
             if ALLOWED_EMAILS:
                 permitir_acesso = user_email in ALLOWED_EMAILS
+            elif ALLOWED_DOMAIN:
+                permitir_acesso = user_email.endswith(f"@{ALLOWED_DOMAIN}")
             else:
-                permitir_acesso = True  # libera acesso se lista vazia
+                permitir_acesso = True  # sem restrições
 
             if permitir_acesso:
                 st.session_state['authenticated'] = True
                 st.session_state['user'] = user_info
-                st.success(f'✅ Welcome {user_name} ({user_email})')
+                st.session_state['login_time'] = datetime.now()
+                st.success(f'✅ Bem-vindo, {user_name} ({user_email})')
             else:
                 st.error('❌ Email não autorizado para este app.')
                 st.stop()
         else:
-            st.error('❌ Falha na autenticação.')
+            st.error(f'❌ Falha na autenticação: {token_json}')
             st.stop()
 
     st.stop()
 
-st.sidebar.success(f"✅ Logged in as {st.session_state['user']['email']}")
+# Usuário autenticado
+user_info = st.session_state['user']
+st.sidebar.success(f"✅ Logado como {user_info['email']}")
 st.title('🚀 Dashboard Gladney')
 st.write('🔐 Conteúdo protegido liberado!')
 
-# Aqui seu dashboard e conteúdo
+# Exemplo de log
+st.caption(f"🕒 Sessão iniciada em: {st.session_state['login_time'].strftime('%Y-%m-%d %H:%M:%S')}")

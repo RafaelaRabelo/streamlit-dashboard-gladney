@@ -54,6 +54,10 @@ if not st.session_state['authenticated']:
         token_response = requests.post(TOKEN_URL, data=token_data)
         token_json = token_response.json()
 
+        if 'error' in token_json:
+            st.error(f"Erro ao obter token: {token_json}")
+            st.stop()
+
         if 'access_token' in token_json:
             access_token = token_json['access_token']
 

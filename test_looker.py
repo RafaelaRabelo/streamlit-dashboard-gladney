@@ -4,28 +4,6 @@ from streamlit_option_menu import option_menu
 import base64
 
 
-# 🛡️ Função de autenticação simples
-def login():
-    st.markdown("## 🔐 Login")
-    st.markdown("---")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        if username == "admin" and password == "1234":  # 🔐 Troque por seus dados
-            st.session_state["authenticated"] = True
-            st.success("✅ Login successful")
-        else:
-            st.error("❌ Invalid username or password")
-
-# 🚪 Verificar se o usuário já está autenticado
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
-
-if not st.session_state["authenticated"]:
-    login()
-    st.stop()  # 🔒 Interrompe o código até fazer login
-
-
 # 🎨 Função para converter imagem para base64
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:

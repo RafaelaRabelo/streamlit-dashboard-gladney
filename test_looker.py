@@ -39,10 +39,10 @@ if 'authenticated' not in st.session_state:
 if not st.session_state['authenticated']:
     st.markdown(f'### 🔐 [Login with Google]({auth_request_url})')
 
-    query_params = st.query_params
+    query_params = st.experimental_get_query_params()
 
     if 'code' in query_params:
-        code = query_params['code'][0]
+        code = query_params.get('code')[0]
 
         token_data = {
             'code': code,
@@ -54,6 +54,7 @@ if not st.session_state['authenticated']:
 
         token_response = requests.post(TOKEN_URL, data=token_data)
         token_json = token_response.json()
+        st.write("🔍 DEBUG token_json:", token_json)
 
         if 'error' in token_json:
             st.error(f"❌ Erro ao obter token: {token_json}")
